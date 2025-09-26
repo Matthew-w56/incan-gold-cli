@@ -1,0 +1,167 @@
+#!/bin/bash
+
+# Incan Gold CLI Game Launcher
+# This script runs the Incan Gold Python game
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_SCRIPT="$SCRIPT_DIR/incan_gold.py"
+
+# Function to check if Python 3 is available
+check_python() {
+    if command -v python3 &> /dev/null; then
+        PYTHON_CMD="python3"
+    elif command -v python &> /dev/null; then
+        PYTHON_VERSION=$(python --version 2>&1 | cut -d' ' -f2 | cut -d'.' -f1)
+        if [ "$PYTHON_VERSION" = "3" ]; then
+            PYTHON_CMD="python"
+        else
+            echo -e "${RED}Error: Python 3 is required but not found.${NC}"
+            echo "Please install Python 3 and try again."
+            exit 1
+        fi
+    else
+        echo -e "${RED}Error: Python is not installed or not in PATH.${NC}"
+        echo "Please install Python 3 and try again."
+        exit 1
+    fi
+}
+
+# Function to display banner
+show_banner() {
+    echo -e "${YELLOW}"
+    echo "  ╔═══════════════════════════════════════════════════╗"
+    echo "  ║                                                   ║"
+    echo "  ║        🏛️   INCAN GOLD - TEMPLE EXPLORER   🏛️        ║"
+    echo "  ║                                                   ║"
+    echo "  ║  Explore ancient temples, collect treasures,     ║"
+    echo "  ║  but beware of the hazards that lurk within!     ║"
+    echo "  ║                                                   ║"
+    echo "  ╚═══════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+# Function to display help
+show_help() {
+    echo -e "${BOLD}Incan Gold CLI Game${NC}"
+    echo ""
+    echo -e "${BOLD}USAGE:${NC}"
+    echo "  $0 [OPTIONS]"
+    echo ""
+    echo -e "${BOLD}OPTIONS:${NC}"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --version  Show version information"
+    echo "  --rules        Display game rules"
+    echo ""
+    echo -e "${BOLD}DESCRIPTION:${NC}"
+    echo "  A CLI implementation of the popular board game Incan Gold."
+    echo "  Explore ancient Incan temples with 3 AI companions, collecting"
+    echo "  treasures while avoiding deadly hazards. Push your luck, but"
+    echo "  don't get too greedy!"
+    echo ""
+    echo -e "${BOLD}GAME FEATURES:${NC}"
+    echo "  • Full original rules with artifacts and hazards"
+    echo "  • ASCII art cards and colored terminal output"
+    echo "  • Smart AI opponents with varying risk tolerance"
+    echo "  • Persistent leaderboard system"
+    echo "  • 5-round expedition gameplay"
+}
+
+# Function to display version
+show_version() {
+    echo -e "${BOLD}Incan Gold CLI${NC}"
+    echo "Version: 1.0.0"
+    echo "A faithful adaptation of the classic board game"
+    echo ""
+    echo "Created with Python 3 and terminal colors"
+}
+
+# Function to display rules
+show_rules() {
+    echo -e "${BOLD}🏛️  INCAN GOLD - GAME RULES  🏛️${NC}"
+    echo ""
+    echo -e "${YELLOW}OBJECTIVE:${NC}"
+    echo "Collect the most treasure points by exploring ancient temples"
+    echo "over 5 expedition rounds."
+    echo ""
+    echo -e "${YELLOW}GAMEPLAY:${NC}"
+    echo "• Each round, players explore a temple together"
+    echo "• Cards are revealed one by one from the temple deck"
+    echo "• After each card, decide: Continue exploring or return to camp?"
+    echo ""
+    echo -e "${YELLOW}CARD TYPES:${NC}"
+    echo -e "${GREEN}TREASURE CARDS (1-15):${NC} Split treasure among all players in temple"
+    echo -e "${RED}HAZARD CARDS:${NC} 5 types: Snake, Spider, Mummy, Fire, Collapse"
+    echo "  - First hazard of each type: No effect"
+    echo "  - Second hazard of same type: All temple players lose round treasure!"
+    echo -e "${CYAN}ARTIFACT CARDS:${NC} Worth 5-10 points, given to sole departing player"
+    echo ""
+    echo -e "${YELLOW}SCORING:${NC}"
+    echo "• Turquoise: 1 point each"
+    echo "• Obsidian: 5 points each"
+    echo "• Gold: 10 points each"
+    echo "• Artifacts: First 3 worth 5 pts, next 2 worth 10 pts each"
+    echo ""
+    echo -e "${YELLOW}STRATEGY TIPS:${NC}"
+    echo "• Balance greed with caution - know when to quit!"
+    echo "• Watch what hazards have been revealed"
+    echo "• Sometimes it pays to be the only one leaving"
+    echo "• Path treasures are split among departing players"
+    echo ""
+    echo -e "${BOLD}Good luck, explorer! May your pockets be full and your exits timely!${NC}"
+}
+
+# Check arguments
+case "$1" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -v|--version)
+        show_version
+        exit 0
+        ;;
+    --rules)
+        show_rules
+        exit 0
+        ;;
+    "")
+        # No arguments - run the game
+        ;;
+    *)
+        echo -e "${RED}Error: Unknown option '$1'${NC}"
+        echo "Use '$0 --help' for usage information."
+        exit 1
+        ;;
+esac
+
+# Check if Python script exists
+if [ ! -f "$PYTHON_SCRIPT" ]; then
+    echo -e "${RED}Error: Game file not found at $PYTHON_SCRIPT${NC}"
+    echo "Make sure incan_gold.py is in the same directory as this script."
+    exit 1
+fi
+
+# Check Python availability
+check_python
+
+# Display banner
+show_banner
+
+# Make sure the Python script is executable
+chmod +x "$PYTHON_SCRIPT"
+
+# Run the game
+echo -e "${GREEN}Starting Incan Gold...${NC}"
+echo ""
+
+# Execute the Python game
+exec "$PYTHON_CMD" "$PYTHON_SCRIPT"
