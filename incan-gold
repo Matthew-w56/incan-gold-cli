@@ -57,13 +57,19 @@ show_help() {
     echo "  $0 [OPTIONS]"
     echo ""
     echo -e "${BOLD}OPTIONS:${NC}"
-    echo "  -h, --help     Show this help message"
-    echo "  -v, --version  Show version information"
-    echo "  --rules        Display game rules"
+    echo "  -h, --help            Show this help message"
+    echo "  -v, --version         Show version information"
+    echo "  --rules               Display game rules"
+    echo "  -p, --players N       Number of AI players (1-7, default: 3)"
+    echo ""
+    echo -e "${BOLD}EXAMPLES:${NC}"
+    echo "  $0                    Play with default 3 AI players"
+    echo "  $0 --players 5        Play with 5 AI players"
+    echo "  $0 -p 1               Play with 1 AI player (minimum)"
     echo ""
     echo -e "${BOLD}DESCRIPTION:${NC}"
     echo "  A CLI implementation of the popular board game Incan Gold."
-    echo "  Explore ancient Incan temples with 3 AI companions, collecting"
+    echo "  Explore ancient Incan temples with AI companions, collecting"
     echo "  treasures while avoiding deadly hazards. Push your luck, but"
     echo "  don't get too greedy!"
     echo ""
@@ -73,6 +79,7 @@ show_help() {
     echo "  • Smart AI opponents with varying risk tolerance"
     echo "  • Persistent leaderboard system"
     echo "  • 5-round expedition gameplay"
+    echo "  • Configurable number of AI players (1-7)"
 }
 
 # Function to display version
@@ -119,29 +126,44 @@ show_rules() {
     echo -e "${BOLD}Good luck, explorer! May your pockets be full and your exits timely!${NC}"
 }
 
-# Check arguments
-case "$1" in
-    -h|--help)
-        show_help
-        exit 0
-        ;;
-    -v|--version)
-        show_version
-        exit 0
-        ;;
-    --rules)
-        show_rules
-        exit 0
-        ;;
-    "")
-        # No arguments - run the game
-        ;;
-    *)
-        echo -e "${RED}Error: Unknown option '$1'${NC}"
-        echo "Use '$0 --help' for usage information."
-        exit 1
-        ;;
-esac
+# Parse command line arguments
+PYTHON_ARGS=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -v|--version)
+            show_version
+            exit 0
+            ;;
+        --rules)
+            show_rules
+            exit 0
+            ;;
+        -p|--players)
+            if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+$ ]]; then
+                PYTHON_ARGS="$PYTHON_ARGS --players $2"
+                shift 2
+            else
+                echo -e "${RED}Error: --players requires a numeric argument${NC}"
+                echo "Use '$0 --help' for usage information."
+                exit 1
+            fi
+            ;;
+        "")
+            # No arguments - continue
+            break
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option '$1'${NC}"
+            echo "Use '$0 --help' for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 # Check if Python script exists
 if [ ! -f "$PYTHON_SCRIPT" ]; then
@@ -163,5 +185,5 @@ chmod +x "$PYTHON_SCRIPT"
 echo -e "${GREEN}Starting Incan Gold...${NC}"
 echo ""
 
-# Execute the Python game
-exec "$PYTHON_CMD" "$PYTHON_SCRIPT"
+# Execute the Python game with arguments
+exec "$PYTHON_CMD" "$PYTHON_SCRIPT" $PYTHON_ARGS
